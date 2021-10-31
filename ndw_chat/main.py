@@ -7,6 +7,7 @@ import json
 import logging
 from typing import List
 
+import aiohttp_cors as aiohttp_cors
 import coloredlogs as coloredlogs
 from aiohttp.abc import Request
 
@@ -55,8 +56,9 @@ SERVER_COMMANDS = {
 
 
 async def http_handler(request: Request):
-    track = request.query["track"]
-    content = request.query["content"]
+    query = await request.json()
+    track = query["track"]
+    content = query["content"]
     if len(content) > config().length_limit:
         logging.info("Discard message that is too long")
         return web.Response(status=406)
@@ -90,10 +92,13 @@ async def websocket_handler(request: Request):
 
 def create_runner():
     app = web.Application()
-    app.add_routes([
-        web.get('/', http_handler),
+    cors = aiohttp_cors.setup(app)
+    routes = app.add_routes([
+        web.post('/', http_handler),
         web.get('/ws', websocket_handler),
     ])
+    for r in routes:
+        cors.add(r, {"*": aiohttp_cors.ResourceOptions(allow_headers="*", allow_methods="*")})
     return web.AppRunner(app)
 
 

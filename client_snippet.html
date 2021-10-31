@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Client Snippet</title>
+    <meta >
+</head>
+<body>
+
+<div class="ndw_chat" track="room1">
+    <h3><span>Submit a question</span></h3>
+    <textarea maxlength="200"></textarea>
+    <span style="visibility: hidden; margin-right: 5em" class="ndw_chat_successful">Sended message</span>
+   <button>Send</button>
+</div>
+
+<script>
+const NDW_CHAT_SERVER_URL = "http://localhost:8080";
+
+document.querySelectorAll(".ndw_chat").forEach(element => {
+    let track = element.getAttribute("track")
+    element.querySelector("button").addEventListener("click", function (event) {
+        fetch(NDW_CHAT_SERVER_URL, {
+            method: "POST",
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "track": track,
+                "content": element.querySelector("textarea").value
+            })
+        }).then(res => {
+             element.querySelector(" .ndw_chat_successful").style.visibility = "visible";
+             setTimeout(() => element.querySelector(" .ndw_chat_successful").style.visibility = "hidden", 3000);
+             element.querySelector("textarea").value = ""
+        })
+    });
+});
+</script>
+</body>
+</html>
