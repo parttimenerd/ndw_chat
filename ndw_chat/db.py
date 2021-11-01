@@ -56,26 +56,34 @@ def set_content(id: int, content: str):
     db("messages").update({"content": content}, Query().id == id)
 
 
-def get_host_text(track: str) -> str:
+def get_host_message(track: str) -> str:
     val = db("host_messages").search(Query().track == track)
     if val:
         return val[0]["text"]
     return ""
 
 
-def set_host_text(track: str, text: str):
+def set_host_message(track: str, text: str):
     db("host_messages").upsert({"track": track, "text": text}, Query().track == track)
 
 
-class UnknownTrack(BaseException):
+def get_tracks() -> List[str]:
+    return [track.name for track in config().tracks]
+
+
+class ValidationException(BaseException):
     pass
 
 
-class UnknownMessage(BaseException):
+class UnknownTrack(ValidationException):
     pass
 
 
-class UnknownState(BaseException):
+class UnknownMessage(ValidationException):
+    pass
+
+
+class UnknownState(ValidationException):
     pass
 
 

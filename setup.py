@@ -22,6 +22,7 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "ndw_chat_server=ndw_chat.main:cli",
+            "ndw_chat_youtube=ndw_chat.youtube:cli",
         ]
     }
 )
