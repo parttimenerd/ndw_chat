@@ -4,6 +4,8 @@
     import {messageStore, WebSocketHandler} from "./store.js"
     import Messages from "./Messages.svelte";
     import Page from "./Page.svelte";
+    import { getNotificationsContext } from 'svelte-notifications';
+    const notificationsContext = getNotificationsContext();
 
     export let params = {}
 
@@ -13,7 +15,7 @@
     let wsh;
 
     onMount(() => {
-        wsh = new WebSocketHandler(SERVER_LOCATION, password, track, true);
+        wsh = new WebSocketHandler(SERVER_LOCATION, password, track, true, notificationsContext);
     })
 
 </script>

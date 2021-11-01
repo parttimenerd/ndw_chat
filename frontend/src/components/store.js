@@ -4,12 +4,13 @@ export let hostMessageStore = writable("");
 export let messageStore = writable([]);
 
 export class WebSocketHandler {
-    constructor(server, password, track, showRaw) {
+    constructor(server, password, track, showRaw, notificationContext) {
         this.server = server;
         this.password = password;
         this.track = track;
         this.showRaw = showRaw;
         this.#socket_init();
+        this.notificationContext = notificationContext;
     }
 
     #socket_init() {
@@ -23,6 +24,9 @@ export class WebSocketHandler {
                 case "push_message":
                     if (args.track === this.track) {
                         messageStore.update(msgs => [...msgs, args]);
+                        if (this.message_shown(args.track, args.state)) {
+                            this.#notify(args);
+                        }
                     }
                     break;
                 case "set_content":
@@ -36,7 +40,11 @@ export class WebSocketHandler {
                         if (this.track !== msg.track) {
                             return null;
                         }
+                        const prevState = msg.state;
                         msg.state = args.state
+                        if (this.message_shown(msg.track, msg.state) && !this.message_shown(msg.track, prevState)) {
+                            this.#notify(msg);
+                        }
                         return msg;
                     });
                     break;
@@ -61,6 +69,15 @@ export class WebSocketHandler {
         this.socket.addEventListener("error", event => console.log(event))
 
         this.socket.addEventListener("close", () => this.#socket_init())
+    }
+
+    #notify(msg) {
+        this.notificationContext.addNotification({
+            text: `${msg.content}`,
+            position: 'bottom-center',
+            type: 'default',
+            removeAfter: 4000
+        })
     }
 
     #update_msg(id, callable) {

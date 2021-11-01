@@ -11,7 +11,7 @@
                     on:click={wsh.set_states([...$messageStore].filter(msg => wsh.message_shown(msg.track, msg.state)).map(msg => msg.id), 'archived')}>archive all</button></span>
     </h6>
     <div>
-        {#each [...$messageStore].reverse() as message}
+        {#each [...$messageStore] as message}
             {#if wsh.message_shown(message.track, message.state)}
                 <div class="pt-1 row pb-3 large border-bottom border-gray">
                     <div class="col-md-1"><Time unixtime={message.time}/></div>

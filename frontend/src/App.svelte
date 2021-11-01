@@ -5,6 +5,7 @@
 	import Moderator from './components/Moderator.svelte'
     import Host from './components/Host.svelte'
     import Home from "./components/Home.svelte"
+    import Notifications from 'svelte-notifications';
 	export let server_location;
 
 	const routes = {
@@ -24,19 +25,15 @@
 </script>
 <Styles/>
 <style>
-        html,
-    body {
-        height: 100%;
-    }
 
     body {
         display: flex;
         align-items: center;
-        padding-top: 40px;
-        padding-bottom: 40px;
         background-color: #f5f5f5;
     }
 </style>
-<main>
-<Router {routes} />
-</main>
+<Notifications>
+    <main>
+    <Router {routes} />
+    </main>
+</Notifications>

@@ -1,9 +1,5 @@
 A chat for the Night of Sciences Karlsruhe.
 
-The following might only be partially what is implemented, but the idea and commands are roughtly the same.
-
-The file `client_snippet.html` gives example code that might be embedded in the streaming website.
-
 ## Basic Concepts
 
 - there are three views (o ne per track)
