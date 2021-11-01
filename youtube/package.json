@@ -1,0 +1,17 @@
+{
+  "name": "youtube_ndw_chat_integration",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": "./index.js",
+  "keywords": [],
+  "author": "",
+  "type": "module",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.6",
+    "request": "^2.88.2",
+    "youtube-live-chat": "^1.0.3",
+    "yt-livechat": "^2.1.1"
+  }
+}

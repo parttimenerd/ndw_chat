@@ -61,7 +61,6 @@ export class WebSocketHandler {
             this.#get_all_messages(
                 messages => messageStore.set(messages.filter(msg => this.track === msg.track)))
             this.#get_host_message(message => {
-                console.log(message);
                 hostMessageStore.set(message)
             })
         })

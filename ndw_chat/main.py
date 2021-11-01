@@ -163,7 +163,6 @@ async def start_server(host="127.0.0.1"):
     site = web.TCPSite(runner, host, config().port)
     await site.start()
 
-
 def cli():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server())

@@ -1,6 +1,37 @@
+NdW Chat
+========
 A chat for the Night of Sciences Karlsruhe.
 
+It consists of three parts:
+
+Server
+------
+A server written in Python (see concepts below) that manages a JSON based database with messages.
+Install the python package…
+
+Viewer Client
+-------------
+Just a simple web interface to submit messages.
+
+Client
+------
+See `frontend` folder.
+
+![Home](images/home.png)
+
+### Moderator Client
+![Home](images/moderator.png)
+
+### Host Client
+![Home](images/host.png)
+
+YouTube Client
+--------------
+It lives in `youtube` and submits messages from the YouTube live stream chat.
+
 ## Basic Concepts
+
+Outdated.
 
 - there are three views (o ne per track)
   - moderator

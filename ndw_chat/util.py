@@ -15,7 +15,7 @@ def base_path() -> Path:
 @dataclass
 class TrackConfig:
     name: str
-    youtube_stream: str
+    youtube_hash: str
 
 
 @dataclass_json
