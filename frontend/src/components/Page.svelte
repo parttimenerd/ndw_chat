@@ -11,7 +11,7 @@
 <svelte:window bind:scrollY={scrollY}></svelte:window>
 
 <div style="max-height: 100%">
-    <div bind:offsetHeight={headerOffsetTop} style="position: fixed !important; top: 0px; padding-top: 6px !important; !important; width: 100%; background: #ffffffdf">
+    <div bind:offsetHeight={headerOffsetTop} style="z-index: 3; position: fixed !important; top: 0px; padding-top: 6px !important; !important; width: 100%; background: #ffffffdf">
         <header class="d-flex align-items-center pb-1 mb-1 border-bottom">
             <span href="/" class="d-flex align-items-center text-dark text-decoration-none">
                 <span class="fs-4"><slot name="title"></slot></span>

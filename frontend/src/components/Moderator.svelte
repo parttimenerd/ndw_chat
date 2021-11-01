@@ -30,6 +30,6 @@
         </div>
     </div>
     <div slot="messages">
-        <Messages messageStore={messageStore} wsh={wsh} addPassToHostButton=true/>
+        <Messages messageStore={messageStore} wsh={wsh} addPassToHostButton=true editable=true />
     </div>
 </Page>

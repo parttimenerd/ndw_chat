@@ -12,7 +12,7 @@ import coloredlogs as coloredlogs
 from aiohttp.abc import Request
 
 from ndw_chat.db import add_message, validate_track, set_state, get_messages, validate_message_id, \
-    validate_state, set_host_message, get_host_message, get_tracks
+    validate_state, set_host_message, get_host_message, get_tracks, set_content
 from ndw_chat.util import config
 
 coloredlogs.install()
@@ -40,7 +40,7 @@ async def handle_set_state(source: web.WebSocketResponse, arguments: dict):
 
 
 async def handle_set_content(source: web.WebSocketResponse, arguments: dict):
-    set_state(validate_message_id(arguments["id"]), arguments["content"])
+    set_content(validate_message_id(arguments["id"]), arguments["content"])
     await propagate("set_content", arguments)
 
 
