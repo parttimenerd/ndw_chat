@@ -147,16 +147,16 @@ async def websocket_handler(request: Request):
         logging.exception(ex)
 
 
-def create_runner():
+def create_runner(path: str = ""):
     app = web.Application()
     cors = aiohttp_cors.setup(app)
     routes = app.add_routes([
-        web.post('/', http_handler),
-        web.get('/ws', websocket_handler),
-        web.get('/messages', get_messages_handler),
-        web.get('/host_message', get_host_message_handler),
-        web.get('/tracks', get_tracks_handler),
-        web.get('/check_password', get_check_password_handler)
+        web.post(path + '/', http_handler),
+        web.get(path + '/ws', websocket_handler),
+        web.get(path + '/messages', get_messages_handler),
+        web.get(path + '/host_message', get_host_message_handler),
+        web.get(path + '/tracks', get_tracks_handler),
+        web.get(path + '/check_password', get_check_password_handler)
     ])
     for r in routes:
         cors.add(r, {"*": aiohttp_cors.ResourceOptions(allow_headers="*", allow_methods="*")})
@@ -164,7 +164,7 @@ def create_runner():
 
 
 async def start_server(host="127.0.0.1"):
-    runner = create_runner()
+    runner = create_runner(config().path)
     await runner.setup()
     site = web.TCPSite(runner, host, config().port)
     await site.start()
