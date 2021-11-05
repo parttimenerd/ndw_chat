@@ -1,4 +1,6 @@
 import {writable,} from 'svelte/store';
+import {check_password} from "./util";
+import {push} from "svelte-spa-router";
 
 export let hostMessageStore = writable("");
 export let messageStore = writable([]);
@@ -57,11 +59,16 @@ export class WebSocketHandler {
         });
 
         this.socket.addEventListener("open", event => {
-            this.socket.send(JSON.stringify({"password": this.password}))
-            this.#get_all_messages(
+            check_password(this.password, (success) => {
+                if (!success) {
+                    push("/");
+                }
+                this.socket.send(JSON.stringify({"password": this.password}))
+                this.#get_all_messages(
                 messages => messageStore.set(messages.filter(msg => this.track === msg.track)))
-            this.#get_host_message(message => {
+                this.#get_host_message(message => {
                 hostMessageStore.set(message)
+            })
             })
         })
 

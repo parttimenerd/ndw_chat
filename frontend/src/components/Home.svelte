@@ -1,11 +1,33 @@
 <!-- based on https://getbootstrap.com/docs/5.1/examples/sign-in/ -->
 <script>
-    import {get_tracks} from "./util";
+    import Cookies from 'js-cookie';
+    import { onMount } from 'svelte';
+    import {check_password, get_tracks} from "./util";
 
-    let password = "";
+    let password = Cookies.get("password") !== undefined ? Cookies.get("password") : "";
     let track = "";
     let tracks = [];
-    get_tracks(t => tracks = t);
+    let password_correct = false;
+    get_tracks(t => {
+        tracks = t;
+        track = tracks[0];
+    });
+
+    onMount(() => {
+        check_password(password, success => {
+            password_correct = success;
+        })
+    })
+
+    function handleNewPassword(password) {
+        check_password(password, success => {
+            console.log(success)
+            password_correct = success;
+            if (success) {
+                Cookies.set("password", password, { expires: 2 })
+            }
+        })
+    }
 </script>
 
 <style>
@@ -44,8 +66,8 @@
         <label for="floatingInput">Track</label>
     </div>
     <div class="form-floating">
-        <input type="password" class="form-control" id="floatingPassword" bind:value={password}>
+        <input type="password" class="form-control" id="floatingPassword" bind:value={password} on:input={() => handleNewPassword(password)}>
         <label for="floatingPassword">Password</label>
     </div>
-    <a class="w-50 btn btn-primary" href="#/moderator/{password}/{track}">Moderator</a><a class="w-50 btn btn-primary" href="#/host/{password}/{track}">Host</a>
+    <a class="w-50 btn btn-primary {!password_correct ? 'disabled' : ''}" href="#/moderator/{track}">Moderator</a><a class="w-50 btn btn-primary {!password_correct ? 'disabled' : ''}" href="#/host/{track}">Host</a>
 </div>

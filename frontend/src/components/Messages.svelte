@@ -9,6 +9,7 @@
     export let addPassToHostButton;
     export let editable = false;
 </script>
+{#if wsh !== undefined}
 <div class="bg-white">
     <h6 class="border-bottom border-gray pb-3" style="overflow: fragments">
         <div class="row">
@@ -52,3 +53,4 @@
         {/each}
     </div>
 </div>
+{/if}

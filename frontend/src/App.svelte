@@ -13,8 +13,8 @@
         '/': Home,
 
         // Using named parameters, with last being optional
-        '/moderator/:password/:track': Moderator,
-        '/host/:password/:track': Host
+        '/moderator/:track': Moderator,
+        '/host/:track': Host
     }
 
 	let password = ""

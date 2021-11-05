@@ -110,6 +110,11 @@ async def get_tracks_handler(query: dict):
     return {"tracks": get_tracks()}
 
 
+@unauthenticated_request
+async def get_check_password_handler(query: dict):
+    return {"matches": config().password == query["password"]}
+
+
 async def websocket_handler(request: Request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
@@ -150,7 +155,8 @@ def create_runner():
         web.get('/ws', websocket_handler),
         web.get('/messages', get_messages_handler),
         web.get('/host_message', get_host_message_handler),
-        web.get('/tracks', get_tracks_handler)
+        web.get('/tracks', get_tracks_handler),
+        web.get('/check_password', get_check_password_handler)
     ])
     for r in routes:
         cors.add(r, {"*": aiohttp_cors.ResourceOptions(allow_headers="*", allow_methods="*")})

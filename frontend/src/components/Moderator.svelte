@@ -5,17 +5,17 @@
     import Messages from "./Messages.svelte";
     import Page from "./Page.svelte";
     import { getNotificationsContext } from 'svelte-notifications';
+    import {password_from_cookie} from "./util";
     const notificationsContext = getNotificationsContext();
 
     export let params = {}
 
-    const track = params.track
-    const password = params.password
+    const track = params.track;
 
     let wsh;
 
     onMount(() => {
-        wsh = new WebSocketHandler(SERVER_LOCATION, password, track, true, notificationsContext);
+        wsh = new WebSocketHandler(SERVER_LOCATION, password_from_cookie(), track, true, notificationsContext);
     })
 
 </script>
