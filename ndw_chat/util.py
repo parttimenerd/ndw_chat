@@ -27,7 +27,7 @@ class Config:
     length_limit: int = 200
     tracks: List[TrackConfig] = field(default_factory=lambda: [TrackConfig("room1", "stream url")])
     delete_after_days: float = 2
-
+    host: str = "127.0.0.1"
 
 _config: Optional[Config] = None
 CONFIG_FILE = "config.yaml"

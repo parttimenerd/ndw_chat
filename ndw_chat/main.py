@@ -176,7 +176,7 @@ async def delete_messages():
 
 def cli():
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(start_server())
+    loop.run_until_complete(start_server(config().host))
     loop.run_until_complete(delete_messages())
     loop.run_forever()
 
