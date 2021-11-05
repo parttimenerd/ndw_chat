@@ -12,7 +12,7 @@ import coloredlogs as coloredlogs
 from aiohttp.abc import Request
 
 from ndw_chat.db import add_message, validate_track, set_state, get_messages, validate_message_id, \
-    validate_state, set_host_message, get_host_message, get_tracks, set_content
+    validate_state, set_host_message, get_host_message, get_tracks, set_content, delete_old_messages
 from ndw_chat.util import config
 
 coloredlogs.install()
@@ -163,9 +163,15 @@ async def start_server(host="127.0.0.1"):
     site = web.TCPSite(runner, host, config().port)
     await site.start()
 
+async def delete_messages():
+    while True:
+        delete_old_messages()
+        await asyncio.sleep(10)
+
 def cli():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server())
+    loop.run_until_complete(delete_messages())
     loop.run_forever()
 
 

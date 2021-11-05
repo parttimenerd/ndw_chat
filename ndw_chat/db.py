@@ -103,3 +103,7 @@ def validate_state(state: str) -> str:
     if state not in [RAW, VISIBLE, ARCHIVED]:
         raise UnknownState()
     return state
+
+
+def delete_old_messages():
+    db("messages").remove(Query().time <= time.time() - config().delete_after_days * 24 * 60 * 60)
