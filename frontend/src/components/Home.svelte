@@ -21,10 +21,9 @@
 
     function handleNewPassword(password) {
         check_password(password, success => {
-            console.log(success)
             password_correct = success;
             if (success) {
-                Cookies.set("password", password, { expires: 2 })
+                Cookies.set("password", password, { expires: 2, sameSite:'strict' })
             }
         })
     }

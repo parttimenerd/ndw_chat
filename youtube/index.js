@@ -13,7 +13,7 @@ function push(track, content) {
             content: content
         })
     }, function (error, response, body) {
-        console.log(body);
+        // console.log(body);
     });
 }
 

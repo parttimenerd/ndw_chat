@@ -37,7 +37,7 @@
                     <div class="btn-group" role="group">
                         {#if sendMessage !== null}
                         <span> <button class="btn btn-success"
-                                       on:click={() => {sendMessagesDialogOpen = true; console.log(sendMessagesDialogOpen)}}>Send message</button></span>
+                                       on:click={() => {sendMessagesDialogOpen = true; }}>Send message</button></span>
                         {/if}
                         <span> <button class="btn btn-dark"
                                                               on:click={() => archiveAllMessagesDialogOpen = true}>archive all</button></span>
