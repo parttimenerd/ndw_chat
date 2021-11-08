@@ -12,6 +12,20 @@ export function own_fetch(subpage, args, callback) {
         .then(data => callback(data))
 }
 
+export function send_message(track, content) {
+    fetch(`${SERVER_LOCATION}/send`, {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+                "track": track,
+                "content": content
+            })
+    });
+}
+
 export function get_tracks(callback) {
         own_fetch("tracks", {}, res => callback(res["tracks"]))
 }

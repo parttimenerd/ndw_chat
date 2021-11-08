@@ -151,7 +151,7 @@ def create_runner(path: str = ""):
     app = web.Application()
     cors = aiohttp_cors.setup(app)
     routes = app.add_routes([
-        web.post(path + '/', http_handler),
+        web.post(path + '/send', http_handler),
         web.get(path + '/ws', websocket_handler),
         web.get(path + '/messages', get_messages_handler),
         web.get(path + '/host_message', get_host_message_handler),

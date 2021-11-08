@@ -5,7 +5,7 @@
     import Messages from "./Messages.svelte";
     import Page from "./Page.svelte";
     import { getNotificationsContext } from 'svelte-notifications';
-    import {password_from_cookie} from "./util";
+    import {password_from_cookie, send_message} from "./util";
     const notificationsContext = getNotificationsContext();
 
     export let params = {}
@@ -30,6 +30,7 @@
         </div>
     </div>
     <div slot="messages">
-        <Messages messageStore={messageStore} wsh={wsh} addPassToHostButton=true editable=true />
+        <Messages messageStore={messageStore} wsh={wsh} addPassToHostButton=true editable=true
+        sendMessage={content => send_message(track, content)}/>
     </div>
 </Page>

@@ -1,23 +1,49 @@
 <script>
-      import {
-    Pencil
-  } from "svelte-bootstrap-icons";
+    import Dialog from "./Dialog.svelte";
     import Time from "./Time.svelte";
     import EditableMessage from "./EditableMessage.svelte"
+
     export let messageStore;
     export let wsh;
     export let addPassToHostButton;
     export let editable = false;
+    export let sendMessage = null;
+    let archiveAllMessagesDialogOpen = false;
+    let sendMessagesDialogOpen = false;
+    let sendMessageValue = "";
 </script>
 {#if wsh !== undefined}
-<div class="bg-white">
-    <h6 class="border-bottom border-gray pb-3" style="overflow: fragments">
-        <div class="row">
-       <div class="col-md-10"> Messages </div>
-       <div class="col-md-2"> <span> <button class="btn btn-dark"
-                    on:click={wsh.set_states([...$messageStore].filter(msg => wsh.message_shown(msg.track, msg.state)).map(msg => msg.id), 'archived')}>archive all</button></span>
-       </div>
+
+
+    <Dialog bind:isOpen={archiveAllMessagesDialogOpen}
+            onSubmit={() => wsh.set_states([...$messageStore].filter(msg => wsh.message_shown(msg.track, msg.state)).map(msg => msg.id), 'archived')}
+            title="Archive all messages" submitText="Ok">
+        <div slot="content">Archive {[...$messageStore].filter(msg => wsh.message_shown(msg.track, msg.state)).length}
+            message(s)? This cannot be reverted.
         </div>
+    </Dialog>
+    <Dialog title="Send new message" bind:isOpen={sendMessagesDialogOpen} onSubmit={() => sendMessage(sendMessageValue)}
+     reset={() => sendMessageValue = ""}>
+        <div slot="content">
+            <textarea style="width: 100%" bind:value={sendMessageValue}></textarea>
+        </div>
+    </Dialog>
+
+    <div class="bg-white">
+        <h6 class="border-bottom border-gray pb-3" style="overflow: fragments">
+            <div class="row">
+                <div class="col-md-9"> Messages</div>
+                <div class="col-md-3">
+                    <div class="btn-group" role="group">
+                        {#if sendMessage !== null}
+                        <span> <button class="btn btn-success"
+                                       on:click={() => {sendMessagesDialogOpen = true; console.log(sendMessagesDialogOpen)}}>Send message</button></span>
+                        {/if}
+                        <span> <button class="btn btn-dark"
+                                                              on:click={() => archiveAllMessagesDialogOpen = true}>archive all</button></span>
+                    </div>
+                </div>
+            </div>
     </h6>
     <div>
         {#each [...$messageStore] as message}
