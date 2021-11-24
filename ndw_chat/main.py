@@ -213,7 +213,7 @@ async def propagate_initial_quiz_info(receiver: web.WebSocketResponse):
 
 
 async def websocket_handler(request: Request):
-    ws = web.WebSocketResponse()
+    ws = web.WebSocketResponse(autoping=True, heartbeat=10000)
     await ws.prepare(request)
     try:
         msg = await ws.receive()
@@ -224,14 +224,24 @@ async def websocket_handler(request: Request):
             logging.error("Authentication unsuccessful")
             return
         authenticated_websockets.append(ws)
-        await propagate_initial_quiz_info(ws)
+        try:
+            await asyncio.sleep(0.02)
+            await propagate_initial_quiz_info(ws)
+        except:
+            pass
         while True:
             msg = await ws.receive()
             if (msg.type == WSMsgType.TEXT and msg.data == 'close') or msg.type == WSMsgType.CLOSE:
                 await ws.close()
                 logging.info("Closed connection")
                 authenticated_websockets.remove(ws)
-                return
+                break
+            if msg.type == WSMsgType.PING or str(msg.data) == '{"kind":"ping"}':
+                await ws.pong(msg.data)
+                continue
+            if msg.type == WSMsgType.PONG:
+                await ws.ping(msg.data)
+                continue
             parsed_msg = json.loads(msg.data)
             command = parsed_msg["command"]
             arguments = parsed_msg["arguments"]

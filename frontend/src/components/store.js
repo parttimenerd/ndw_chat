@@ -1,6 +1,7 @@
 import {writable,} from 'svelte/store';
 import {check_password} from "./util";
 import {push} from "svelte-spa-router";
+import { setWsHeartbeat } from "ws-heartbeat/client";
 
 export let hostMessageStore = writable("");
 export let messageStore = writable([]);
@@ -33,6 +34,7 @@ export class WebSocketHandler {
 
     #socket_init() {
         this.socket = new WebSocket(this.server.replace("http", "ws") + "/ws");
+        setWsHeartbeat(this.socket, '{"kind":"ping"}');
         this.socket.addEventListener("message", event => {
             let json = JSON.parse(event.data);
             let command = json.command;

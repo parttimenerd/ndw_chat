@@ -17,7 +17,7 @@ class QuizState {
          */
         this.current_question = null
         this.user_id = localStorage.getItem("user_id")
-        this.registered = this.user_id !== null;
+        this.registered = this.user_id != null;
     }
 
     child(element_class) {
@@ -47,7 +47,6 @@ class QuizState {
     updateUI() {
         if (this.current_question != null) {
             this.show("quiz")
-
             if (this.registered) {
                 this.hide("register")
                 this.enable("submit_answer")
@@ -72,7 +71,7 @@ class QuizState {
         let estimation = this.current_question.estimation
         let choice = this.current_question.choice
         answer_element.innerHTML = "";
-        if (estimation !== null) {
+        if (estimation != null) {
             let input_element = document.createElement("input")
             input_element.type = "number"
             input_element.step = "any"
@@ -153,7 +152,7 @@ class QuizState {
 
     fetch(path, query, onsuccess) {
         query["track"] = this.track
-        if (this.user_id !== null) {
+        if (this.user_id != null) {
             query["user_id"] = this.user_id
         }
         fetch(`${NDW_CHAT_SERVER_URL}/${path}?${new URLSearchParams(query)}`, {
