@@ -35,21 +35,23 @@ class QuizState {
         this.child(element_class).style.display = "block"
     }
 
-    enableSubmitButton() {
-        this.element.querySelector(".submit_answer").disabled = false
+    enable(button_class) {
+        this.child(button_class).disabled = false
     }
 
-    disableSubmitButton() {
-        this.element.querySelector(".submit_answer").disabled = true
+    disable(button_class) {
+        this.child(button_class).disabled = true
     }
+
 
     updateUI() {
         if (this.current_question != null) {
             this.show("quiz")
-            this.enableSubmitButton()
+
             if (this.registered) {
                 this.hide("register")
-
+                this.enable("submit_answer")
+                this.hide("open_register_button")
             } else {
                 if (this.needsToRegister) {
                     this.show("register")
@@ -123,10 +125,8 @@ class QuizState {
     }
 
     handle_submit_answer() {
-        if (this.current_question != null) {
-            if (!this.registered) {
-                this.show("register");
-            } else if (this.current_question["estimation"]) {
+        if (this.current_question != null && this.registered) {
+            if (this.current_question["estimation"]) {
                 this.submit_answer(this.element.querySelector(".answer input").value)
             } else {
                 let selectedElem = this.element.querySelector('input[type="radio"]:checked');
@@ -199,6 +199,10 @@ function init_quiz(element, track) {
     })
     element.querySelector(".register_button").addEventListener("click", () => {
         quiz.handle_register()
+    })
+    element.querySelector(".open_register_button").addEventListener("click", () => {
+        quiz.show("register");
+        quiz.disable("open_register_button");
     })
     setInterval(() => quiz.fetch_current_question(), 20_000)
 }
