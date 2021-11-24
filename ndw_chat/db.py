@@ -1,14 +1,12 @@
-import enum
 import time
 from dataclasses import dataclass
 from typing import Optional, List
 
 from dataclasses_json import dataclass_json
 from tinydb import TinyDB, Query
-from tinydb.table import Document, Table
+from tinydb.table import Table
 
 from ndw_chat.util import base_path, config
-
 
 RAW = "raw"
 VISIBLE = "visible"
@@ -32,7 +30,7 @@ _db: Optional[TinyDB] = None
 def db(table: str) -> Table:
     global _db
     if not _db:
-        _db = TinyDB(base_path() / "db.json")
+        _db = TinyDB(base_path() / "db.json", indent=4, separators=(',', ': '))
         _db.table("host_messages")
         _db.table("messages")
     return _db.table(table)

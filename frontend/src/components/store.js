@@ -4,6 +4,18 @@ import {push} from "svelte-spa-router";
 
 export let hostMessageStore = writable("");
 export let messageStore = writable([]);
+// [{"user": {pseudonym, email}, "score": float}]
+export let q_scores = writable([]); // ordered descending by score
+// [{"question": question, "count": count}] // ordered ascending by question.id
+export let q_answer_count = writable([]);
+// {question_id: {track, slot, text, id}}
+export let q_questions = writable({});
+export let has_quiz = writable(false);
+
+export let q_current_question = writable(null);
+export let q_current_question_answers = writable(0);
+export let q_prev_question = writable(null);
+export let q_next_question = writable(null);
 
 export class WebSocketHandler {
     constructor(server, password, track, showRaw, notificationContext) {
@@ -13,6 +25,10 @@ export class WebSocketHandler {
         this.showRaw = showRaw;
         this.#socket_init();
         this.notificationContext = notificationContext;
+        this.prevQuestionId = -1;
+        this.nextQuestionId = -1;
+        this.currentQuestionId = -1;
+        this.quizAnswerCounts = {};
     }
 
     #socket_init() {
@@ -52,9 +68,34 @@ export class WebSocketHandler {
                     break;
                 case "set_host_message":
                     if (args.track === this.track) {
-                        hostMessageStore.set(args["message"])
+                        hostMessageStore.set(args["message"]);
                     }
                     break;
+                case "scores":
+                    let {scores: scores, count: count, questions: questions} = args;
+                    q_scores.set(scores);
+                    const questionIds = Object.keys(count)
+                    q_answer_count.set(questionIds.sort().map(i => {
+                        return {"question": questions[i], "count": count[i]};
+                    }));
+                    this.quizAnswerCounts = count;
+                    q_questions.set(questions);
+                    this.#update_current_question_answers();
+                    break;
+                case "has_quiz":
+                    has_quiz.set(true);
+                    break;
+                case "set_current_question":
+                    if (args.track === this.track) {
+                        let {current: current, prev: prev, next: next} = args["question"];
+                        q_current_question.set(current);
+                        q_next_question.set(next);
+                        this.prevQuestionId = prev == null ? -1 : prev.id;
+                        this.nextQuestionId = next == null ? -1 : next.id;
+                        this.currentQuestionId = current == null ? -1 : current.id;
+                        q_prev_question.set(prev);
+                        this.#update_current_question_answers();
+                    }
             }
         });
 
@@ -64,17 +105,27 @@ export class WebSocketHandler {
                     push("/");
                 }
                 this.socket.send(JSON.stringify({"password": this.password}))
-                this.#get_all_messages(
-                messages => messageStore.set(messages.filter(msg => this.track === msg.track)))
-                this.#get_host_message(message => {
-                hostMessageStore.set(message)
-            })
+                if (this.track.length !== "") {
+                    this.#get_all_messages(
+                        messages => messageStore.set(messages.filter(msg => this.track === msg.track)))
+                    this.#get_host_message(message => {
+                        hostMessageStore.set(message)
+                    })
+                }
             })
         })
 
         this.socket.addEventListener("error", event => console.log(event))
 
-        this.socket.addEventListener("close", () => this.#socket_init())
+        this.socket.addEventListener("close", () => setTimeout(() => this.#socket_init(), 20))
+    }
+
+    #update_current_question_answers() {
+        if (this.currentQuestionId !== -1) {
+            q_current_question_answers.set(this.quizAnswerCounts[this.currentQuestionId]);
+        } else {
+            q_current_question_answers.set(0);
+        }
     }
 
     #notify(msg) {
@@ -103,6 +154,7 @@ export class WebSocketHandler {
     }
 
     #send(command, args) {
+        console.info(`send ${command}: ${JSON.stringify(arguments)}`,);
         this.socket.send(JSON.stringify({command: command, arguments: args}));
     }
 
@@ -146,5 +198,13 @@ export class WebSocketHandler {
             }
         }).then(res => res.json())
             .then(data => callback(data["message"]))
+    }
+
+    usePrevQuizQuestion() {
+        this.#send("set_current_question", {track: this.track, question_id: this.prevQuestionId})
+    }
+
+    useNextQuizQuestion() {
+        this.#send("set_current_question", {track: this.track, question_id: this.nextQuestionId})
     }
 }

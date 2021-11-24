@@ -1,7 +1,7 @@
 <script>
-  import Modal from "./lib/Modal.svelte";
+    import Modal from "./lib/Modal.svelte";
 
-  export let onCancel = () => {};
+    export let onCancel = () => {};
   export let onSubmit = () => {};
   export let cancelText = "Cancel";
   export let submitText = "Submit";

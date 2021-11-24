@@ -11,6 +11,18 @@ setuptools.setup(
     description="A viewer -> moderator -> host message system for streamed events",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    install_requires=[
+        'dataclasses-json~=0.5.6',
+        'prettyprinter~=0.18.0',
+        'tinydb~=4.5.2',
+        'websockets~=10.0',
+        'coloredlogs~=15.0.1',
+        'aiohttp~=3.7.4.post0',
+        'aiohttp_cors~=0.7.0',
+        'PyYAML~=6.0',
+        'setuptools~=58.3.0   ',
+        'email-validator~=1.1.3'
+    ],
     # url="<<< URL TO DOC WEBSITE OR GIT PROJECT >>>",
     packages=setuptools.find_packages(),
     classifiers=[

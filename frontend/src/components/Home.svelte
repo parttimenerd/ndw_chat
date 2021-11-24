@@ -1,7 +1,7 @@
 <!-- based on https://getbootstrap.com/docs/5.1/examples/sign-in/ -->
 <script>
     import Cookies from 'js-cookie';
-    import { onMount } from 'svelte';
+    import {onMount} from 'svelte';
     import {check_password, get_tracks} from "./util";
 
     let password = Cookies.get("password") !== undefined ? Cookies.get("password") : "";
@@ -65,8 +65,13 @@
         <label for="floatingInput">Track</label>
     </div>
     <div class="form-floating">
-        <input type="password" class="form-control" id="floatingPassword" bind:value={password} on:input={() => handleNewPassword(password)}>
+        <input type="password" class="form-control" id="floatingPassword" bind:value={password}
+               on:input={() => handleNewPassword(password)}>
         <label for="floatingPassword">Password</label>
     </div>
-    <a class="w-50 btn btn-primary {!password_correct ? 'disabled' : ''}" href="#/moderator/{track}">Moderator</a><a class="w-50 btn btn-primary {!password_correct ? 'disabled' : ''}" href="#/host/{track}">Host</a>
+    <div class="btn-group w-100" role="group">
+        <a class="btn btn-primary {!password_correct ? 'disabled' : ''}" href="#/moderator/{track}">Moderator</a>
+        <a class="btn btn-primary {!password_correct ? 'disabled' : ''}" href="#/host/{track}">Host</a>
+        <a class="btn btn-primary {!password_correct ? 'disabled' : ''}" href="#/quiz/scores/{track}">Quiz Scores</a>
+    </div>
 </div>

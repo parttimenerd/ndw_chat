@@ -2,18 +2,18 @@
 Based partly by https://stackoverflow.com/a/54908617
 """
 
-import html
 import json
 import logging
-from typing import List, Any, Dict
+from typing import List, Dict, Callable
 
 import aiohttp_cors as aiohttp_cors
 import coloredlogs as coloredlogs
 from aiohttp.abc import Request
 
+import ndw_chat.quiz as quiz
 from ndw_chat.db import add_message, validate_track, set_state, get_messages, validate_message_id, \
     validate_state, set_host_message, get_host_message, get_tracks, set_content, delete_old_messages
-from ndw_chat.util import config
+from ndw_chat.util import config, to_dict
 
 coloredlogs.install()
 
@@ -28,9 +28,9 @@ logging.basicConfig(level=logging.INFO,
 authenticated_websockets: List[web.WebSocketResponse] = []
 
 
-async def propagate(command: str, arguments: dict):
+async def propagate(command: str, arguments: dict, receiver: web.WebSocketResponse = None):
     global authenticated_websockets
-    for websocket in authenticated_websockets:
+    for websocket in ([receiver] if receiver else authenticated_websockets):
         await websocket.send_json({"command": command, "arguments": arguments})
 
 
@@ -49,10 +49,16 @@ async def handle_set_host_message(source: web.WebSocketResponse, arguments: dict
     await propagate("set_host_message", arguments)
 
 
+async def handle_set_current_question(source: web.WebSocketResponse, query: dict):
+    quiz.set_current_question(query["track"], query["question_id"])
+    await propagate_current_question(query["track"])
+
+
 SERVER_COMMANDS = {
     "set_state": handle_set_state,
     "set_content": handle_set_content,
-    "set_host_message": handle_set_host_message
+    "set_host_message": handle_set_host_message,
+    "set_current_question": handle_set_current_question
 }
 
 
@@ -69,11 +75,26 @@ async def http_handler(request: Request):
     return web.Response(text="ok")
 
 
+HANDLERS: Dict[str, Callable] = {}
+
+
+def register_handler(location: str):
+    global HANDLERS
+
+    def wrapper(func):
+        assert location not in HANDLERS
+        HANDLERS[location] = func
+        return func
+
+    return wrapper
+
+
 def authenticated_request(func):
     """
     checks the query parameter 'password', the decorated function gets passed the query dict
     and returns a dict
     """
+
     async def wrapper(request: Request):
         query = request.query
         if "password" not in query or query["password"] != config().password:
@@ -95,24 +116,100 @@ def unauthenticated_request(func):
     return wrapper
 
 
+@register_handler("messages")
 @authenticated_request
 async def get_messages_handler(query: dict):
     return [msg.to_dict() for msg in sorted(get_messages(), key=lambda v: v.id)]
 
 
+@register_handler("host_message")
 @authenticated_request
 async def get_host_message_handler(query: dict):
     return {"message": get_host_message(track=query["track"])}
 
 
+@register_handler("tracks")
 @unauthenticated_request
 async def get_tracks_handler(query: dict):
     return {"tracks": get_tracks()}
 
 
+@register_handler("check_password")
 @unauthenticated_request
 async def get_check_password_handler(query: dict):
     return {"matches": config().password == query["password"]}
+
+
+@register_handler("register_quiz_user")
+@unauthenticated_request
+async def register_quiz_user_handler(query: dict):
+    user_id = quiz.register_user(query["pseudonym"], query["email"])
+    return {"success": user_id is not None, "user_id": user_id}
+
+
+@register_handler("submit_quiz_answer")
+@unauthenticated_request
+async def submit_quiz_answer_handler(query: dict):
+    user_id = int(query["user_id"])
+    question_id = int(query["question_id"])
+    if quiz.answered(user_id, question_id):
+        return {"success": False, "already_answered": True}
+    answer = quiz.add_answer(user_id, question_id, query["answer"])
+    await propagate("scores", quiz.user_scores().to_dict())
+    return {"success": answer is not None, "already_answered": False}
+
+
+@register_handler("unanswered_question")
+@unauthenticated_request
+async def get_unanswered_question_handler(query: dict):
+    track = query["track"]
+    cur_q = quiz.get_current_question(track)
+    if "user_id" in query:
+        user_id = int(query["user_id"])
+        if cur_q and not quiz.answered(user_id, cur_q.id):
+            return {"question": cur_q.to_dict()}
+        return {"question": None}
+    else:
+        return {"question": to_dict(cur_q)}
+
+
+@register_handler("scores")
+@authenticated_request
+async def get_scores_handler(query: dict):
+    return quiz.user_scores().to_dict()
+
+
+def _get_current_question_dict(track: str):
+    return {"current": to_dict(quiz.get_current_question(track)),
+            "next": to_dict(quiz.get_next_question(track)),
+            "prev": to_dict(quiz.get_prev_question(track))}
+
+
+@register_handler("current_question")
+@unauthenticated_request
+async def get_current_question_handler(query: dict):
+    return _get_current_question_dict(query["track"])
+
+
+async def propagate_current_question(track: str, receiver=None):
+    await propagate("set_current_question", {
+        "track": track,
+        "question": _get_current_question_dict(track)
+    }, receiver)
+
+
+@register_handler("has_quiz")
+@unauthenticated_request
+async def get_has_quiz_handler():
+    return {"has_quiz": config().has_quiz}
+
+
+async def propagate_initial_quiz_info(receiver: web.WebSocketResponse):
+    if config().has_quiz:
+        await propagate("scores", quiz.user_scores().to_dict(), receiver)
+        for track_conf in config().tracks:
+            await propagate_current_question(track_conf.name, receiver)
+        await propagate("has_quiz", {"has_quiz": True}, receiver)
 
 
 async def websocket_handler(request: Request):
@@ -127,7 +224,7 @@ async def websocket_handler(request: Request):
             logging.error("Authentication unsuccessful")
             return
         authenticated_websockets.append(ws)
-
+        await propagate_initial_quiz_info(ws)
         while True:
             msg = await ws.receive()
             if (msg.type == WSMsgType.TEXT and msg.data == 'close') or msg.type == WSMsgType.CLOSE:
@@ -151,13 +248,9 @@ def create_runner(path: str = ""):
     app = web.Application()
     cors = aiohttp_cors.setup(app)
     routes = app.add_routes([
-        web.post(path + '/send', http_handler),
-        web.get(path + '/ws', websocket_handler),
-        web.get(path + '/messages', get_messages_handler),
-        web.get(path + '/host_message', get_host_message_handler),
-        web.get(path + '/tracks', get_tracks_handler),
-        web.get(path + '/check_password', get_check_password_handler)
-    ])
+                                web.post(path + '/send', http_handler),
+                                web.get(path + '/ws', websocket_handler)
+                            ] + [web.get(path + "/" + location, handler) for location, handler in HANDLERS.items()])
     for r in routes:
         cors.add(r, {"*": aiohttp_cors.ResourceOptions(allow_headers="*", allow_methods="*")})
     return web.AppRunner(app)
@@ -169,15 +262,20 @@ async def start_server(host="127.0.0.1"):
     site = web.TCPSite(runner, host, config().port)
     await site.start()
 
-async def delete_messages():
+
+async def delete_old_data():
     while True:
         delete_old_messages()
-        await asyncio.sleep(10)
+        quiz.delete_old_users_and_answers()
+        await asyncio.sleep(100)
+
 
 def cli():
-    loop = asyncio.get_event_loop()
+    if config().has_quiz:
+        quiz.quiz()
+    loop = asyncio.new_event_loop()
     loop.run_until_complete(start_server(config().host))
-    loop.run_until_complete(delete_messages())
+    loop.run_until_complete(delete_old_data())
     loop.run_forever()
 
 

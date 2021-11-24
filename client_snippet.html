@@ -8,36 +8,29 @@
 <body>
 
 <div class="ndw_chat" track="room1">
+    <div class="quiz" style="display: none">
+        <h3><span>Quiz: <span class="question"></span></span></h3>
+        <div class="answer"></div>
+        <button class="submit_answer" disabled="disabled">Send</button>
+        <div class="register" style="display: none">
+            You have to register by submitting
+            <label>pseudonym:</label><input class="pseudonym" minlength="1" maxlength="100" required pattern=".{10,100}">
+            <label>email:</label><input class="email" type="email" required pattern=".+@.+"/>
+            This data is stored for at most two days (including a cookie with the same data). It is only used for the
+            purpose of announcing the quiz winner and sending instructions on how to get the price.
+            <button class="register_button">Register</button>
+        </div>
+    </div>
     <h3><span>Submit a question</span></h3>
     <textarea maxlength="200"></textarea>
     <span style="visibility: hidden; margin-right: 5em" class="ndw_chat_successful">Sended message</span>
-   <button>Send</button>
+   <button class="submit_question">Send</button>
     <small>All questions are stored at most 2 days for the purpose of being asked to the speaker.</small>
 </div>
 
 <script>
-const NDW_CHAT_SERVER_URL = "http://localhost:8080/send";
-
-document.querySelectorAll(".ndw_chat").forEach(element => {
-    let track = element.getAttribute("track")
-    element.querySelector("button").addEventListener("click", function (event) {
-        fetch(NDW_CHAT_SERVER_URL, {
-            method: "POST",
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "track": track,
-                "content": element.querySelector("textarea").value
-            })
-        }).then(res => {
-             element.querySelector(" .ndw_chat_successful").style.visibility = "visible";
-             setTimeout(() => element.querySelector(" .ndw_chat_successful").style.visibility = "hidden", 3000);
-             element.querySelector("textarea").value = ""
-        })
-    });
-});
+const NDW_CHAT_SERVER_URL = "http://localhost:8080";
 </script>
+<script src="client.js"></script>
 </body>
 </html>

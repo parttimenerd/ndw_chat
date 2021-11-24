@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Optional, List, Union, Dict, Any
 
 import yaml
 from dataclasses_json import dataclass_json
@@ -29,6 +29,7 @@ class Config:
     delete_after_days: float = 2
     host: str = "127.0.0.1"
     path: str = ""
+    has_quiz: bool = False
 
 _config: Optional[Config] = None
 CONFIG_FILE = "config.yaml"
@@ -48,3 +49,9 @@ def config() -> Config:
             yaml.dump(Config().to_dict(), f)
             print(f"Please update the template config file at {config_file}")
         exit(0)
+
+
+def to_dict(val: Optional[Any]) -> Union[Dict, List, str, None]:
+    if val is None or isinstance(val, list) or isinstance(val, dict) or isinstance(val, str):
+        return val
+    return val.to_dict()

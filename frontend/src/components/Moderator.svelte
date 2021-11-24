@@ -4,8 +4,9 @@
     import {messageStore, WebSocketHandler} from "./store.js"
     import Messages from "./Messages.svelte";
     import Page from "./Page.svelte";
-    import { getNotificationsContext } from 'svelte-notifications';
+    import {getNotificationsContext} from 'svelte-notifications';
     import {password_from_cookie, send_message} from "./util";
+
     const notificationsContext = getNotificationsContext();
 
     export let params = {}

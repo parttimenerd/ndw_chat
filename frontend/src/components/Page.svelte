@@ -1,7 +1,9 @@
 <script>
     import {link} from 'svelte-spa-router';
+
     let scrollY;
     let headerOffsetTop;
+    export let withoutModeratorText = false;
 </script>
 <style>
     :global(.comm textarea), :global(.comm span) {
@@ -21,13 +23,15 @@
                 <span class="fs-4"><slot name="title"></slot></span>
             </span>
         </header>
-        <div class="col-lg-7 mx-auto p-3 py-md-5 page" style="height: 100%;">
-            <div class="row g-5">
-                <div class="col-md-12 comm">
-                    <slot name="comm"></slot>
+        {#if !withoutModeratorText}
+            <div class="col-lg-7 mx-auto p-3 py-md-5 page" style="height: 100%;">
+                <div class="row g-5">
+                    <div class="col-md-12 comm">
+                        <slot name="comm"></slot>
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
     </div>
     <div style="height: {headerOffsetTop}px"></div>
     <div class="col-lg-7 mx-auto p-3 py-md-5 page" style="height: 100%; padding-top: 0 !important;">

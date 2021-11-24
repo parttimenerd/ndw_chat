@@ -1,6 +1,6 @@
 <script>
     import {onMount} from 'svelte';
-    import Pencil from "svelte-bootstrap-icons/lib/Pencil";
+
     export let message;
     export let klass;
     export let wsh;

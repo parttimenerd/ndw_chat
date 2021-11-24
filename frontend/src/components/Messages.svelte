@@ -50,7 +50,7 @@
             {#if wsh.message_shown(message.track, message.state)}
                 <div class="pt-1 row pb-3 large border-bottom border-gray">
                     <div class="col-md-1"><Time unixtime={message.time}/></div>
-                        {#if editable == "true"}
+                        {#if editable === "true"}
                             <EditableMessage wsh={wsh} message={message} klass="col-md-9 {message.state === 'visible' && addPassToHostButton === 'true' ? 'bg-success text-white': ''}"/>
                         {:else}
                             <div class="col-md-9 {message.state === 'visible' && addPassToHostButton === 'true' ? 'bg-success text-white': ''}">

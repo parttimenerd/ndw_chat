@@ -1,12 +1,14 @@
 <script>
-    import { onMount } from 'svelte';
-    import { Styles } from 'sveltestrap';
-	import Router from 'svelte-spa-router'
-	import Moderator from './components/Moderator.svelte'
+    import {onMount} from 'svelte';
+    import {Styles} from 'sveltestrap';
+    import Router from 'svelte-spa-router'
+    import Moderator from './components/Moderator.svelte'
     import Host from './components/Host.svelte'
     import Home from "./components/Home.svelte"
     import Notifications from 'svelte-notifications';
-	export let server_location;
+    import QuizScores from "./components/QuizScores.svelte";
+
+    export let server_location;
 
 	const routes = {
         // Exact path
@@ -14,7 +16,8 @@
 
         // Using named parameters, with last being optional
         '/moderator/:track': Moderator,
-        '/host/:track': Host
+        '/host/:track': Host,
+        '/quiz/scores/:track': QuizScores
     }
 
 	let password = ""
