@@ -20,6 +20,7 @@ class QuizState {
         this.current_question = null
         this.user_id = localStorage.getItem("user_id")
         this.registered = this.user_id != null;
+        this.needsToRegister = false;
     }
 
     setUserId(user_id) {
@@ -59,10 +60,7 @@ class QuizState {
                 this.enable("submit_answer")
                 this.hide("open_register_button")
             } else {
-                if (this.needsToRegister) {
-                    this.show("register")
-                    this.disableSubmitButton()
-                }
+                this.disableSubmitButton()
             }
         } else {
             this.hide("quiz")

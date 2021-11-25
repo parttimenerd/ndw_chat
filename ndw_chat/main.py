@@ -181,13 +181,16 @@ async def submit_quiz_answer_handler(query: dict):
 async def get_unanswered_question_handler(query: dict):
     track = query["track"]
     cur_q = quiz.get_current_question(track)
+    success_return = {"question": None}
+    if not quiz.is_current_question_enabled(track):
+        return {"question": None}
     if "user_id" in query:
         user_id = int(query["user_id"])
-        if cur_q and not quiz.answered(user_id, cur_q.id) and quiz.is_current_question_enabled(track):
+        if cur_q and not quiz.answered(user_id, cur_q.id):
             return {"question": cur_q.to_dict()}
         return {"question": None}
     else:
-        return {"question": to_dict(cur_q)}
+        return success_return
 
 
 @register_handler("scores")
