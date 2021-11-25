@@ -15,6 +15,7 @@ export let has_quiz = writable(false);
 
 export let q_current_question = writable(null);
 export let q_current_question_answers = writable(0);
+export let q_current_question_enabled = writable(false);
 export let q_prev_question = writable(null);
 export let q_next_question = writable(null);
 
@@ -29,6 +30,7 @@ export class WebSocketHandler {
         this.prevQuestionId = -1;
         this.nextQuestionId = -1;
         this.currentQuestionId = -1;
+        this.currentQuestionEnabled = false;
         this.quizAnswerCounts = {};
     }
 
@@ -89,7 +91,7 @@ export class WebSocketHandler {
                     break;
                 case "set_current_question":
                     if (args.track === this.track) {
-                        let {current: current, prev: prev, next: next} = args["question"];
+                        let {current: current, prev: prev, next: next, current_enabled: current_enabled} = args["question"];
                         q_current_question.set(current);
                         q_next_question.set(next);
                         this.prevQuestionId = prev == null ? -1 : prev.id;
@@ -97,6 +99,8 @@ export class WebSocketHandler {
                         this.currentQuestionId = current == null ? -1 : current.id;
                         q_prev_question.set(prev);
                         this.#update_current_question_answers();
+                        this.currentQuestionEnabled = current_enabled;
+                        q_current_question_enabled.set(current_enabled);
                     }
             }
         });
@@ -178,6 +182,10 @@ export class WebSocketHandler {
 
     message_shown(track, state) {
         return track === this.track && state !== "archived" && (this.showRaw || state !== "raw")
+    }
+
+    enable_current_question(enabled) {
+        this.#send("enable_current_question", {track: this.track, enabled: enabled})
     }
 
     #get_all_messages(callback) {

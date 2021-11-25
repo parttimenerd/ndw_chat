@@ -150,7 +150,7 @@ def add_answer(user_id: int, question_id: int, answer: str) -> Optional[QuizAnsw
         return None
     if get_user(user_id) is None or all(question.id != question_id for question in get_questions()):
         return None
-    if all(q.id != question_id for q in get_current_questions()):
+    if all(q.id != question_id for q in get_current_questions() if is_current_question_enabled(q.track)):
         return None
     answer = QuizAnswer(question=question_id, user=user_id, answer=answer, time=time.time()).to_dict()
     db("quiz_answers").insert(answer)
@@ -196,6 +196,18 @@ def get_prev_question(track: str) -> Optional[QuizQuestion]:
 def set_current_question(track: str, question_id: int):
     if get_question(question_id) or question_id == -1:
         db("current_questions").upsert({"track": track, "id": question_id}, Query().track == track)
+        enable_current_question(track, False)
+
+
+def enable_current_question(track: str, enabled: bool):
+    db("current_question_enabled").upsert({"track": track, "enabled": enabled}, Query().track == track)
+
+
+def is_current_question_enabled(track: str) -> bool:
+    val = db("current_question_enabled").search(Query().track == track)
+    if val:
+        return val[0]["enabled"]
+    return False
 
 
 def parse_float(text: str) -> float:

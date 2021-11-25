@@ -54,11 +54,17 @@ async def handle_set_current_question(source: web.WebSocketResponse, query: dict
     await propagate_current_question(query["track"])
 
 
+async def handle_enable_current_question(source: web.WebSocketResponse, query: dict):
+    quiz.enable_current_question(query["track"], bool(query["enabled"]))
+    await propagate_current_question(query["track"])
+
+
 SERVER_COMMANDS = {
     "set_state": handle_set_state,
     "set_content": handle_set_content,
     "set_host_message": handle_set_host_message,
-    "set_current_question": handle_set_current_question
+    "set_current_question": handle_set_current_question,
+    "enable_current_question": handle_enable_current_question
 }
 
 
@@ -176,7 +182,7 @@ async def get_unanswered_question_handler(query: dict):
     cur_q = quiz.get_current_question(track)
     if "user_id" in query:
         user_id = int(query["user_id"])
-        if cur_q and not quiz.answered(user_id, cur_q.id):
+        if cur_q and not quiz.answered(user_id, cur_q.id) and quiz.is_current_question_enabled(track):
             return {"question": cur_q.to_dict()}
         return {"question": None}
     else:
@@ -192,7 +198,8 @@ async def get_scores_handler(query: dict):
 def _get_current_question_dict(track: str):
     return {"current": to_dict(quiz.get_current_question(track)),
             "next": to_dict(quiz.get_next_question(track)),
-            "prev": to_dict(quiz.get_prev_question(track))}
+            "prev": to_dict(quiz.get_prev_question(track)),
+            "current_enabled": quiz.is_current_question_enabled(track)}
 
 
 @register_handler("current_question")

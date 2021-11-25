@@ -6,7 +6,7 @@
         hostMessageStore,
         messageStore,
         q_current_question,
-        q_current_question_answers,
+        q_current_question_answers, q_current_question_enabled,
         q_next_question,
         q_prev_question,
         WebSocketHandler
@@ -58,13 +58,20 @@
                                 <ArrowRight></ArrowRight>
                             </button>
                         </div>
+                        <button class="btn btn-primary" on:click={() => {wsh.enable_current_question(!wsh.currentQuestionEnabled)}}>
+                            {#if $q_current_question_enabled}
+                                Hide
+                                {:else }
+                                Show
+                            {/if}
+                        </button>
                     {/if}
                     {#if $q_current_question !== null}
                         <it>Current question:</it> {$q_current_question.text}
                         <span title="Number of answers" class="badge rounded-pill bg-danger translate-middle"
                               style="font-size: 0.7em; margin-left: 1em">
                             {$q_current_question_answers}
-                            <span class="visually-hidden">unread messages</span>
+                            <span class="visually-hidden">Number of answers</span>
                         </span>
                     {/if}
                 </div>
