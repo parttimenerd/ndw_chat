@@ -147,6 +147,16 @@ async def register_quiz_user_handler(query: dict):
     return {"success": user_id is not None, "user_id": user_id}
 
 
+@register_handler("user_registered")
+@unauthenticated_request
+async def user_registered_handler(query: dict):
+    try:
+        return {"registered": quiz.get_user(int(query["user_id"])) is not None}
+    except:
+        pass
+    return {"registered": False}
+
+
 @register_handler("submit_quiz_answer")
 @unauthenticated_request
 async def submit_quiz_answer_handler(query: dict):

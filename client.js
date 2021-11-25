@@ -1,5 +1,7 @@
 
 
+let quizzes = {};
+
 class QuizState {
     constructor(track, element) {
         this.element = element
@@ -17,6 +19,11 @@ class QuizState {
          */
         this.current_question = null
         this.user_id = localStorage.getItem("user_id")
+        this.registered = this.user_id != null;
+    }
+
+    setUserId(user_id) {
+        this.user_id = user_id;
         this.registered = this.user_id != null;
     }
 
@@ -99,8 +106,12 @@ class QuizState {
         this.fetch("unanswered_question", {}, res => {
             if (JSON.stringify(this.current_question) !== JSON.stringify(res["question"])) {
                 this.current_question = res["question"]
-                this.renderCurrentQuestion()
-                this.updateUI()
+                this.fetch("user_registered", {"user_id": this.user_id}, res => {
+                    this.registered = res["registered"]
+                    this.renderCurrentQuestion()
+                    this.updateUI()
+                })
+
             }
         })
     }
@@ -112,6 +123,9 @@ class QuizState {
                 localStorage.setItem("user_id", this.user_id)
                 this.registered = true
                 this.needsToRegister = false
+                for (const quiz of Object.values(quizzes)) {
+                    quiz.setUserId(this.user_id);
+                }
                 this.updateUI()
             } else {
                 console.log(res);
@@ -180,14 +194,12 @@ function init_submit_question(element, track) {
                 "content": element.querySelector("textarea").value
             })
         }).then(() => {
-            element.querySelector(" .ndw_chat_successful").style.visibility = "visible";
-            setTimeout(() => element.querySelector(" .ndw_chat_successful").style.visibility = "hidden", 3000);
+            element.querySelector(" .ndw_chat_successful").style.display = "block";
+            setTimeout(() => element.querySelector(" .ndw_chat_successful").style.display = "none", 3000);
             element.querySelector("textarea").value = ""
         })
     });
 }
-
-let quizzes = {};
 
 function init_quiz(element, track) {
     let quiz = new QuizState(track, element.querySelector(".quiz"));
@@ -203,7 +215,7 @@ function init_quiz(element, track) {
         quiz.show("register");
         quiz.disable("open_register_button");
     })
-    setInterval(() => quiz.fetch_current_question(), 20_000)
+    setInterval(() => quiz.fetch_current_question(), 5_000)
 }
 
 document.querySelectorAll(".ndw_chat").forEach(element => {
