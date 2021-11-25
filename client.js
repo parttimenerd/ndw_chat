@@ -176,6 +176,9 @@ class QuizState {
 }
 
 function init_submit_question(element, track) {
+    if (element.querySelector(".submit_question") == null) {
+        return;
+    }
     element.querySelector(".submit_question").addEventListener("click", () => {
         fetch(NDW_CHAT_SERVER_URL + "/send", {
             method: "POST",
@@ -196,6 +199,9 @@ function init_submit_question(element, track) {
 }
 
 function init_quiz(element, track) {
+    if (element.querySelector(".quiz") == null) {
+        return;
+    }
     let quiz = new QuizState(track, element.querySelector(".quiz"));
     quiz.fetch_current_question();
     quizzes[track] = quiz

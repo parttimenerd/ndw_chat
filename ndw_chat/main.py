@@ -72,7 +72,7 @@ async def http_handler(request: Request):
     query = await request.json()
     track = query["track"]
     content = query["content"]
-    if len(content) > config().length_limit and len(content) > 5:
+    if len(content) > config().length_limit or len(content) < 2:
         logging.info("Discard message that is too long")
         return web.Response(status=406)
     msg = add_message(validate_track(track), content)
