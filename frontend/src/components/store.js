@@ -32,6 +32,7 @@ export class WebSocketHandler {
         this.currentQuestionId = -1;
         this.currentQuestionEnabled = false;
         this.quizAnswerCounts = {};
+        this.messageIds = new Set();
     }
 
     #socket_init() {
@@ -45,9 +46,12 @@ export class WebSocketHandler {
             switch (command) {
                 case "push_message":
                     if (args.track === this.track) {
-                        messageStore.update(msgs => [...msgs, args]);
-                        if (this.message_shown(args.track, args.state)) {
-                            this.#notify(args);
+                        if (!this.messageIds.has(args.id)) {
+                            this.messageIds.add(args.id);
+                            messageStore.update(msgs => [...msgs, args]);
+                            if (this.message_shown(args.track, args.state)) {
+                                this.#notify(args);
+                            }
                         }
                     }
                     break;
