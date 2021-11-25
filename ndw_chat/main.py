@@ -190,7 +190,7 @@ async def get_unanswered_question_handler(query: dict):
             return {"question": cur_q.to_dict()}
         return {"question": None}
     else:
-        return success_return
+        return {"question": cur_q.to_dict()}
 
 
 @register_handler("scores")

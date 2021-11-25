@@ -213,7 +213,7 @@ function init_quiz(element, track) {
         quiz.show("register");
         quiz.disable("open_register_button");
     })
-    setInterval(() => quiz.fetch_current_question(), 5_000)
+    setInterval(() => quiz.fetch_current_question(), 10_000)
 }
 
 document.querySelectorAll(".ndw_chat").forEach(element => {
