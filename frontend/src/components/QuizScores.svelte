@@ -57,7 +57,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {#each [...$q_answer_count] as count_dict}
+                    {#each [...$q_answer_count].sort((x, y) => x.question.slot - y.question.slot) as count_dict}
                         <tr>
                             <td>{count_dict.question.slot}</td>
                             <td>{count_dict.question.track}</td>

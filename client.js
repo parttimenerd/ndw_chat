@@ -79,13 +79,7 @@ class QuizState {
         let choice = this.current_question.choice
         answer_element.innerHTML = "";
         if (estimation != null) {
-            let input_element = document.createElement("input")
-            input_element.type = "number"
-            input_element.step = "any"
-            let label_element = document.createElement("label")
-            label_element.textContent = estimation
-            answer_element.appendChild(input_element)
-            answer_element.appendChild(label_element)
+            answer_element.innerHTML = `<input class="form-control" type="number" step="any" style="width: 10em !important;" placeholder="${estimation}" title="${estimation}"/>`;
         } else {
             let name = this.track;
             let html = ""

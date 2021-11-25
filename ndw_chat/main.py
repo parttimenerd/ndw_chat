@@ -175,6 +175,7 @@ async def submit_quiz_answer_handler(query: dict):
     return {"success": answer is not None, "already_answered": False}
 
 
+
 @register_handler("unanswered_question")
 @unauthenticated_request
 async def get_unanswered_question_handler(query: dict):
